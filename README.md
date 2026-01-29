@@ -4,9 +4,9 @@
 ---
 # Python MCP Server & Client Implementation
 
-A reference implementation of the **Model Context Protocol (MCP)** featuring a FastMCP server, an LLM-powered client (Claude), and automated integration testing.
+A reference implementation of the **Model Context Protocol (MCP)** featuring a FastMCP server, an LLM-powered client (Claude), and a comprehensive testing suite.
 
-This project demonstrates how to connect a Large Language Model (Anthropic Claude) to local tools (file creation) using the MCP standard.
+This project demonstrates how to connect a Large Language Model (Anthropic Claude) to local tools (file creation) using the MCP standard, with workflows for both integration and unit testing.
 <img width="1900" height="875" alt="image" src="https://github.com/user-attachments/assets/38a42296-c5fd-441f-9f86-2298645d4d4d" />
 
 ## 📂 Project Structure
@@ -15,7 +15,8 @@ This project demonstrates how to connect a Large Language Model (Anthropic Claud
 | --- | --- |
 | **`mcp_server.py`** | A FastMCP server exposing a `create_file` tool via `stdio` transport. |
 | **`host_client_test.py`** | An interactive CLI client that connects the MCP server to Anthropic's Claude API. |
-| **`integration_test.py`** | A standalone integration test to verify server functionality without LLM costs. |
+| **`integration_test.py`** | Tests the full MCP protocol handshake and tool execution via `stdio` (Simulates a real client). |
+| **`test_server.py`** | **Unit test** that imports the server module directly to verify tool logic without the protocol overhead. |
 
 ## 🛠️ Prerequisites
 
@@ -28,8 +29,6 @@ This project demonstrates how to connect a Large Language Model (Anthropic Claud
 This project uses `uv` for dependency management.
 
 ### 1. Install `uv` (Windows)
-
-If you haven't installed `uv` yet:
 
 ```powershell
 powershell -ExecutionPolicy ByPass -File uv-installer.ps1
@@ -63,11 +62,9 @@ ANTHROPIC_API_KEY=your_sk_ant_key_here
 
 ```
 
-> **Note:** The client is currently configured to use `claude-haiku-4-5`. If you do not have access to this specific model, please update the `model` parameter in `host_client_test.py` to a standard model like `claude-3-5-sonnet-20241022`.
-
 ## 💻 Usage
 
-### 1. Running the Interactive Client
+### 1. Run the Interactive Client (Main Application)
 
 This connects the `mcp_server` to Claude. You can ask Claude to create files, and it will use the server's tool to do so.
 
@@ -82,14 +79,23 @@ uv run host_client_test.py mcp_server.py
 Query: Create a hello world python file called hello.py
 ...
 [Calling tool create_file with args {'file_path': 'hello.py', 'content': 'print("Hello World")'}]
-...
-I have created the hello.py file for you.
 
 ```
 
-### 2. Running Integration Tests
+### 2. Run Direct Unit Tests (`test_server.py`)
 
-To verify that the MCP server works correctly (without using the LLM API):
+Use this to test the **logic** of your tools directly (bypassing the MCP transport layer). This is useful for debugging the actual Python functions inside your server.
+
+```bash
+uv run test_server.py
+
+```
+
+*Expected Output: `✅ Test passed! File was created successfully.*`
+
+### 3. Run Integration Tests (`integration_test.py`)
+
+Use this to test the **protocol connection**. This ensures the server is correctly communicating via Standard IO and that the MCP ClientSession can parse the tools.
 
 ```bash
 uv run integration_test.py
@@ -110,18 +116,6 @@ uv run mcp dev ./mcp_server.py
 ```
 
 This will launch the MCP Inspector at `http://localhost:6274`. You can interactively test the `create_file` tool directly from your browser.
-
-## 🧩 How It Works
-
-1. **Server (`mcp_server.py`)**: Uses `FastMCP` to define a simple toolset. It listens on `stdio` for instructions.
-2. **Client (`host_client_test.py`)**:
-* Initializes an `MCPClient`.
-* Spawns the server script as a subprocess.
-* Fetches available tools (`list_tools`).
-* Sends user queries + tool definitions to the Anthropic API.
-* If Claude decides to use a tool, the client executes it via the MCP session and returns the result to Claude.
-
-
 
 ## 📄 License
 
