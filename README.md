@@ -1,7 +1,5 @@
 # ModelContextProtocol
-File creation with MCP
 ---
-
 # Python MCP Server & Client Implementation
 
 A reference implementation of the **Model Context Protocol (MCP)** featuring a FastMCP server, an LLM-powered client (Claude), and automated integration testing.
