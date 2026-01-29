@@ -7,6 +7,7 @@ File creation with MCP
 A reference implementation of the **Model Context Protocol (MCP)** featuring a FastMCP server, an LLM-powered client (Claude), and automated integration testing.
 
 This project demonstrates how to connect a Large Language Model (Anthropic Claude) to local tools (file creation) using the MCP standard.
+<img width="1900" height="875" alt="image" src="https://github.com/user-attachments/assets/38a42296-c5fd-441f-9f86-2298645d4d4d" />
 
 ## 📂 Project Structure
 
